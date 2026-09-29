@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.ryuyoungsun.workout_tracker"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37 // permission_handler_android 요구
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
