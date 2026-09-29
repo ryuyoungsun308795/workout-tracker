@@ -53,11 +53,29 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         run: |
+          if [ -n "$MAPS_API_KEY" ]; then GMAPS=true; else
+            GMAPS=false
+            echo "::warning::MAPS_API_KEY Secret이 없어 Esri 위성지도로 빌드합니다."
+          fi
           flutter build apk --release \
+            --dart-define=GOOGLE_MAPS=$GMAPS \
             --build-name=1.0.${{ github.run_number }} \
             --build-number=${{ github.run_number }}
           cp build/app/outputs/flutter-apk/app-release.apk workout-tracker.apk
+
+      # Google 지도 키 제한(패키지+SHA-1)에 쓸 서명 지문 출력 — 공개돼도 되는 값
+      - name: 서명 SHA-1 지문
+        run: |
+          KS="${ANDROID_KEYSTORE_PATH:-$HOME/.android/debug.keystore}"
+          if [ -n "$ANDROID_KEYSTORE_PATH" ]; then
+            keytool -list -v -keystore "$KS" -storepass "$ANDROID_KEYSTORE_PASSWORD" | grep -m1 SHA1 || true
+          else
+            keytool -list -v -keystore "$KS" -storepass android | grep -m1 SHA1 || true
+          fi
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
 
       - uses: actions/upload-artifact@v4
         with:

@@ -26,6 +26,8 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Google 지도 키는 저장소에 넣지 않고 CI 환경변수(GitHub Secret MAPS_API_KEY)로 받는다
+        manifestPlaceholders["MAPS_API_KEY"] = System.getenv("MAPS_API_KEY") ?: ""
     }
 
     // 릴리스 서명키는 저장소에 넣지 않고 CI 환경변수(GitHub Secrets)로 받는다.
